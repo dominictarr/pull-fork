@@ -26,7 +26,6 @@ function error (err) {
       return function (abort, cb) {
         read(abort, function (end, data) {
           if(data) seen.push(data)
-          console.log('DATA', data)
           if(end) ended = end
           cb(end, data)
         })
@@ -37,7 +36,6 @@ function error (err) {
         async.through(),
         function (read) {
           read(null, function (err, data) {
-            console.log('abort1')
             read(true, function () {
               //abort should wait until all the streams have ended
               //before calling back.
@@ -50,7 +48,6 @@ function error (err) {
         async.through(),
         function (read) {
           read(null, function (err, data) {
-            console.log('abort2')
             read(true, function () {
               //abort should wait until all the streams have ended
               //before calling back.
@@ -66,11 +63,8 @@ function error (err) {
 
   function done(err, ary) {
     if(--n) return
-    console.log('***********************88')
-    console.log(aborted2, aborted1)
     //since each sink aborts after 1
     //item, we should have only read the first two items
-    console.log(seen)
     assert.deepEqual(seen, [1, 2])
     assert.ok(ended)
     if(!aborted1 || !aborted2)

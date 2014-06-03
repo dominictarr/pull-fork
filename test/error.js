@@ -42,7 +42,6 @@ interleave.test(function (async) {
 
   function done(err, ary) {
     if(--n) return
-    console.log(!!err1, !!err2)
     if(!err1 || !err2)
       throw new Error('test failed')
 

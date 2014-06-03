@@ -33,7 +33,6 @@ interleaving.test(function (async) {
     assert.deepEqual(a, [1, 3, 5, 7])
     assert.deepEqual(b, [2, 4, 6, 8])
 
-    console.log(a, b)
     async.done()
   }
 

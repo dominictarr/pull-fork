@@ -58,7 +58,6 @@ function error (err) {
 
   function done(err, ary) {
     if(--n) return
-    console.log(aborted2, ary1)
     assert.deepEqual(ary1, [1, 3, 5, 7])
     if(!aborted2 || !ary1)
       throw new Error('test failed')
