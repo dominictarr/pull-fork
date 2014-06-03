@@ -1,4 +1,4 @@
-'use strict';
+ 'use strict';
 
 //split one stream into two.
 //if the stream ends, end both streams.
@@ -7,18 +7,31 @@
 
 module.exports = function (sinks, select) {
   var cbs = new Array(sinks.length), ended, j, data, read, reading
+  var aborted = new Array(sinks.length)
+  var running = sinks.length
 
   sinks.map(function (reader, i) {
     reader(function (abort, cb) {
-      console.error('read', i, j)
+      if(abort) {
+        aborted[i] = abort;
+        --running
+        cbs[i] = cb
+        if(!running) return pull(abort) //endAll(ended = aborted)
+        //continue, incase we have already read something
+        //for this stream. might need to drop that.
+      }
       if(j === i) {
         var _j = j
         j = null
+        //
+        if(aborted[i]) return pull()
         cb(null, data)
-      } else if(ended)
+      }
+      else if(ended)
         return cb(ended)
       else
         cbs[i] = cb
+
       pull()
     })
   })
@@ -33,12 +46,11 @@ module.exports = function (sinks, select) {
     }
   }
 
-  function pull () {
+  function pull (abort) {
     if(reading || !read) return
     reading = true
-    read(null, function (end, _data) {
+    read(abort, function (end, _data) {
       reading = false
-      console.log('route to', _j, cbs)
       var _j
       if(end) {
         ended = end
@@ -48,6 +60,8 @@ module.exports = function (sinks, select) {
         _j = select(_data)
 
       if(cbs[_j]) {
+        if(!abort && aborted[_j]) return pull()
+
         var cb = cbs[_j]
         cbs[_j] = null
         cb(null, _data)
