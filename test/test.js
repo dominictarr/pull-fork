@@ -2,22 +2,9 @@ var pull = require('pull-stream')
 var assert = require('assert')
 var interleaving = require('interleavings')
 
-var fork = require('./')
+var N = require('./util').N
 
-function N (n, cb) {
-  var result = [], error
-  var i = 0
-  function done () {
-    if(--n) return
-    cb(error, result)
-  }
-  return function () {
-    var j = i ++
-    return function (err, value) {
-      error = error || err; result[j] = value; done()
-    }
-  }
-}
+var fork = require('../')
 
 interleaving.test(function (async) {
 
