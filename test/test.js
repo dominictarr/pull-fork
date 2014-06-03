@@ -37,7 +37,4 @@ interleaving.test(function (async) {
     async.done()
   }
 
-}, function (err, results, stats) {
-  console.error(results)
-  assert.equal(stats.failures, 0)
 })
