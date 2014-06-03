@@ -16,7 +16,8 @@ module.exports = function (sinks, select) {
         aborted[i] = abort;
         --running
         cbs[i] = cb
-        if(!running) return pull(abort) //endAll(ended = aborted)
+        //if all sinks have aborted, abort the sink.
+        if(!running) return pull(abort)
         //continue, incase we have already read something
         //for this stream. might need to drop that.
       }
@@ -24,7 +25,7 @@ module.exports = function (sinks, select) {
         var _j = j
         j = null
         //
-        if(aborted[i]) return pull()
+        if(aborted[i]) return
         cb(null, data)
       }
       else if(ended)
