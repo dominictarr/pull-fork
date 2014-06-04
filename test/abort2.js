@@ -15,7 +15,7 @@ function error (err) {
 ;interleave.test
 (function h(async) {
 
-  var n = 2
+  var n = 3
   var err = new Error('closes both streams')
 
   var aborted1, aborted2, ended, seen = []
@@ -26,7 +26,7 @@ function error (err) {
       return function (abort, cb) {
         read(abort, function (end, data) {
           if(data) seen.push(data)
-          if(end) ended = end
+          if(end) {ended = end; done()}
           cb(end, data)
         })
       }
@@ -36,10 +36,10 @@ function error (err) {
         async.through(),
         function (read) {
           read(null, function (err, data) {
-            read(true, function () {
+            read(true, function (end) {
               //abort should wait until all the streams have ended
               //before calling back.
-              aborted1 = ended
+              aborted1 = end
               done()
             })
           })
@@ -48,10 +48,10 @@ function error (err) {
         async.through(),
         function (read) {
           read(null, function (err, data) {
-            read(true, function () {
+            read(true, function (end) {
               //abort should wait until all the streams have ended
               //before calling back.
-              aborted2 = ended
+              aborted2 = end
               done()
             })
           })
@@ -66,7 +66,7 @@ function error (err) {
     //since each sink aborts after 1
     //item, we should have only read the first two items
     assert.deepEqual(seen, [1, 2])
-    assert.ok(ended)
+    assert.ok(ended, 'source *must* end')
     if(!aborted1 || !aborted2)
       throw new Error('test failed')
 
