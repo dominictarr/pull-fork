@@ -9,7 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "interleavings": "^0.1.0",
+    "interleavings": "^0.2.3",
     "pull-stream": "^2.23.0",
     "tape": "~2.13.2"
   },
