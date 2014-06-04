@@ -22,11 +22,14 @@ module.exports = function (sinks, select, create) {
       if(abort) {
         aborted[key] = abort;
         --running
-        cbs[key] = cb
+        //cbs[key] = cb
         //if all sinks have aborted, abort the sink.
-        if(!running) return pull(abort)
+        if(j === key) j = null
+        pull(running ? null : abort)
+        cb(abort)
         //continue, incase we have already read something
         //for this stream. might need to drop that.
+        return
       }
 
       if(j === key) {
@@ -71,6 +74,9 @@ module.exports = function (sinks, select, create) {
       else
         _j = select(_data, sinks)
 
+      if(aborted[_j])
+        return pull()
+
       if(!sinks[_j]) {
         //edgecase: if select returns a new stream
         //          but user did not provide create?
@@ -84,7 +90,6 @@ module.exports = function (sinks, select, create) {
       }
 
       if(cbs[_j]) {
-        if(!abort && aborted[_j]) return pull()
         var cb = cbs[_j]
         cbs[_j] = null
         cb(null, _data)
