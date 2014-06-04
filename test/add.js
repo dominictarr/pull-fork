@@ -36,35 +36,4 @@ interleave.test(function (async) {
 
 })
 
-interleave.test(function (async) {
-  var n = 2, results = []
-
-  var f = fork(
-    function (data, sinks) {
-      return data % 2
-    },
-    function (i, sinks) {
-      return pull(
-              async.through(),
-              pull.collect(function (err, value) {
-                if(err) throw err
-                results[i] = value
-                done()
-              }))
-    })
-
-  pull(pull.values([]), async.through(), f)
-
-  var values
-
-  function done () {
-    if(--n) return
-    assert.deepEqual(results, [
-      [2, 4, 6, 8],
-      [1, 3, 5, 7]
-    ])
-    async.done()
-  }
-
-})
 
