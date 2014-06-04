@@ -1,7 +1,7 @@
 {
   "name": "pull-fork",
-  "description": "",
-  "version": "1.0.3",
+  "description": "fork a pull-stream to many sinks",
+  "version": "1.1.0",
   "homepage": "https://github.com/dominictarr/pull-fork",
   "repository": {
     "type": "git",
