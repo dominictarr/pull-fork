@@ -12,12 +12,13 @@ module.exports = function (sinks, select, create) {
     sinks = []
   }
 
-  var running = sinks.length
-  var cbs     = new Array(running)
-  var aborted = new Array(running)
+  var running = 0
+  var cbs     = new Array(sinks.length)
+  var aborted = new Array(sinks.length)
   var open = false, ended, j, data, read, reading
 
   function init (key, reader) {
+    running ++
     reader(function (abort, cb) {
       if(abort) {
         aborted[key] = abort;
@@ -25,8 +26,9 @@ module.exports = function (sinks, select, create) {
         //cbs[key] = cb
         //if all sinks have aborted, abort the sink.
         if(j === key) j = null
+
         pull(running ? null : abort)
-        cb(abort)
+        if(cb) cb(abort)
         //continue, incase we have already read something
         //for this stream. might need to drop that.
         return
@@ -40,9 +42,9 @@ module.exports = function (sinks, select, create) {
       else if(ended) {
         return cb(ended)
       }
-      else
+      else {
         cbs[key] = cb
-
+      }
       pull()
     })
   }
@@ -66,7 +68,6 @@ module.exports = function (sinks, select, create) {
     read(abort, function (end, _data) {
       reading = false
       var _j
-
       if(end) {
         ended = end
         return endAll()
@@ -94,15 +95,19 @@ module.exports = function (sinks, select, create) {
         cbs[_j] = null
         cb(null, _data)
       } else {
-        j = _j
-        data = _data
+        j = _j; data = _data
       }
     })
   }
 
-  return function (_read) {
-    read = _read
-    pull()
+  function reader (_read) {
+    read = _read; pull()
   }
 
+  reader.add = function (key, sink) {
+    sinks[key] = sink
+    init(key, sink)
+  }
+
+  return reader
 }
