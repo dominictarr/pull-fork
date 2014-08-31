@@ -10,6 +10,7 @@
   "dependencies": {},
   "devDependencies": {
     "interleavings": "^0.2.3",
+    "pull-cat": "^1.1.5",
     "pull-stream": "^2.23.0",
     "tape": "~2.13.2"
   },
