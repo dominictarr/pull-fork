@@ -13,7 +13,14 @@ interleave.test(function (async) {
     },
     function (i, sinks) {
       return pull(
-              async.through(),
+        //      async.through(),
+              function (read) {
+                return function (abort, cb) {
+                  return read(abort, function (end, data) {
+                    async(cb)(end, data)
+                  })
+                }
+              },
               pull.collect(function (err, value) {
                 if(err) throw err
                 results[i] = value

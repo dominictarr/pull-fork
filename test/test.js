@@ -8,25 +8,7 @@ var fork = require('../')
 
 interleaving.test(function (async) {
 
-  function p (read) {
-    return function (abort, cb) {
-      read(abort, async(cb))
-    }
-  }
-
-  var s = N(2, done)
-
-  pull(
-    pull.values([1, 2, 3, 4, 5, 6, 7, 8]),
-    fork([
-      pull.collect(s()),
-      pull.collect(s())
-    ].map(p),
-      function (e) { return (e + 1) % 2 }
-    )
-  )
-
-  function done (err, ary) {
+  var done = async(function done (err, ary) {
     var a = ary[0]
     var b = ary[1]
 
@@ -34,6 +16,20 @@ interleaving.test(function (async) {
     assert.deepEqual(b, [2, 4, 6, 8])
 
     async.done()
-  }
+  })
+
+  var s = N(2, done)
+
+  pull(
+    pull.values([1, 2, 3, 4, 5, 6, 7, 8]),
+    async.through('C'),
+    fork([
+      pull(async.through('A'), pull.collect(s())),
+      pull(async.through('B'), pull.collect(s()))
+    ],
+      function (e) { return (e + 1) % 2 }
+    )
+  )
+
 
 })

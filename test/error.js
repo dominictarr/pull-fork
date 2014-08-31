@@ -1,4 +1,3 @@
-
 var N = require('./util').N
 var pull = require('pull-stream')
 var cat = require('pull-cat')
